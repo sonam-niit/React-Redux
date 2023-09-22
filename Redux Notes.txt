@@ -1,0 +1,278 @@
+Redux is a library which is used for the state managements.
+
+Its predictable state container.
+
+Why Redux?
+
+applications having its own state.. it can be the combination of the states of internal components.
+
+Cart Component: numbers of items in a user's cart
+
+---> [items,setItems] //all the items added in the cart
+---> [count,setCount] //total number of items
+
+
+handle multiple states from the multiple components efficiently when your application grows in size.
+
+==redux can simply store and maintain the application states.
+== we can change existing states and fetch the current state using some important APIs provided by redux.
+
+What makes the redux predictible?
+================================
+state is readonly in redux.
+
+to make changes in the states of the application, we need to dispatch an action which described what changes we want to make in the sate.
+
+These actions consumed by reducers whoce job is to accept 2 things (action, current state of the application) it returns the updated instance of the sate.
+
+Reducers: it will no change any part of the state. its making a new instance of the state with all required changes.
+
+Let's Implement
+------------------------------
+
+create React applictaion: npx create-react-app react-redux-demo
+
+cd react-redux-demo
+npm start
+
+open the same in vs code: code .
+
+Install Redux library: npm i redux react-redux
+
+create store.js file in src folder
+---------------------------------------------------------------------
+
+import {createStore} from 'redux';
+
+const store=createStore();
+
+export default store;
+
+Add Store as a provider in index.js
+----------------------------------------------------------------------
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <Provider store={store}>
+    <App />
+  </Provider>
+    
+);
+=======================================================================
+Let's Create Contants for Actions
+------------------------------------------------
+export const INCREMENT= "INCREMENT";
+export const DECREMENT="DECREMENT";
+export const ADD_ITEM = "ADD_ITEM";
+export const REMOVE_ITEM= "REMOVE_ITEM";
+
+Let'c created Reducers folder in src and create reducers name counterReducer and itemReducres.js files
+
+counterReducers.js
+--------------------------
+import { DECREMENT, INCREMENT } from "./actionType";
+
+const initialState={
+    count:0
+}
+
+const counterReducer= (state=initialState,action)=>{
+
+    switch(action.type){
+        case INCREMENT:
+            return {...state,count:state.count+1}
+        case DECREMENT:
+            return {...state,count:state.count-1}
+        default:
+            return state;
+    }
+}
+
+export default counterReducer;
+
+===============================================================================================================
+
+itemReducer.js
+
+import { ADD_ITEM, REMOVE_ITEM } from "./actionType"
+
+const initialState={
+    items:[]
+}
+
+const itemReducer=(state=initialState,action)=>{
+
+    switch(action.type){
+        case ADD_ITEM:
+            return {...state,items:[...state.items,action.payload]}
+        case REMOVE_ITEM:
+            return {...state,items:state.items.filter(item=>item.id!==action.payload)}
+
+        default:
+            return state;
+    }
+}
+
+export default itemReducer;
+
+=======================================================================================================================
+combine Both the Reducers in rootReducer.js file
+
+import { combineReducers } from "redux";
+import counterReducer from "./counterReducer";
+import itemReducer from "./itemReducer";
+
+const rootReducer=combineReducers({
+    counter:counterReducer,
+    itemReducer:itemReducer
+})
+
+export default rootReducer;
+
+========================================================================
+Register RootReducer in store.js
+
+const store=createStore(rootReducer); //update this Line
+
+To use Reducers Let's Create some Components
+create folder components inside src folder
+
+create file named counter.js
+
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { DECREMENT, INCREMENT } from '../reducers/actionType';
+
+function Counter() {
+
+    const count= useSelector(state=>state.counter.count);
+    const dispatch= useDispatch();
+    return (<div>
+        <h3>Count: {count}</h3>
+        <button onClick={()=>dispatch({type:INCREMENT})}>INCREMENT</button>
+        <button onClick={()=>dispatch({type:DECREMENT})}>DECREMENT</button>
+    </div>  );
+}
+
+export default Counter;
+
+========================================================================================
+Create file named itemList.js to work with Items Reducer
+
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { ADD_ITEM, REMOVE_ITEM } from '../reducers/actionType';
+
+function ItemList() {
+
+    const items= useSelector(state=>state.itemReducer.items);
+    const dispatch=useDispatch();
+    //state for taking input from users
+    const [newItem,setNewItem]= useState('');
+
+    const handleAddItem=()=>{
+        dispatch({type:ADD_ITEM,payload:{id:Date.now(),name:newItem}});
+        setNewItem('')
+    }
+    
+    const handleRemoveItem=(itemId)=>{
+        dispatch({type:REMOVE_ITEM,payload:itemId})
+    }
+    return (<div>
+        <h1>Item List</h1>
+        <ul>
+            {
+                items.map((item,index)=>{
+                    return(<li key={index}>
+                        {item.id} {item.name}
+                        <button onClick={()=>{handleRemoveItem(item.id)}}>
+                            X
+                        </button>
+                    </li>)
+                })
+            }
+        </ul>
+        <div>
+            <input type='text' value={newItem} placeholder='Enter ANy Task'
+            onChange={(e)=>setNewItem(e.target.value)}></input>
+            <button onClick={handleAddItem}>Add Item</button>
+        </div>
+    </div>  );
+}
+
+export default ItemList;
+
+=========================================================================================
+Add Both the components to app.js
+
+import './App.css';
+import Counter from './components/counter';
+import ItemList from './components/itemList';
+
+function App() {
+  return (
+    <div className="App">
+        <h1>React Redux Demo</h1>
+        <Counter />
+        <ItemList />
+    </div>
+  );
+}
+
+export default App;
+
+
+Check the Output for both the components.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

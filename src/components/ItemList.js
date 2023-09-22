@@ -11,6 +11,7 @@ export const ItemList=()=>{
     const handleAddItem=()=>{
         dispatch({type:ADD_ITEM,payload:{id:Date.now(),name:newItem}})
         setNewItem('');
+        
     }
     const handleRemoveItem=(itemId)=>{
         dispatch({type:REMOVE_ITEM,payload:itemId})
